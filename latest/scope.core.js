@@ -48,7 +48,6 @@ window.Scope.extend = function( arguments ){
     this.collection = arguments;
     return this;
 }
-window.Scope.extend.prototype.with =
 
 
 extend( Scope ).with({
@@ -149,7 +148,6 @@ extend( Element, Document ).with({
         var split = a.split(' ');
         for( var i in split ){
             var event = split[i];
-            console.log(event);
             if( typeof c === 'undefined' ){
                 // direct
                 this.addEventListener( event, b );
@@ -180,8 +178,7 @@ extend( Element, Document ).with({
     },
     findOne: function( query ){
         return this.querySelector( query );
-    },
-
+    }
 });
 
 extend( Element ).with({
@@ -215,7 +212,6 @@ extend( Element ).with({
     },
     attr: function( a, b ){
         if( b === null ){
-            console.log('rem');
             this.removeAttribute( a );
         } else if( typeof b === 'undefined' ){
             return this.getAttribute( a );
