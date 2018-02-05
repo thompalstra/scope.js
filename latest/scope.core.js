@@ -125,7 +125,7 @@ extend( Scope ).with({
             window['widgets'] = [];
         }
 
-        document.findAll('[widget][widget-state="pending"]').forEach(function(el){
+        document.find('[widget][widget-state="pending"]').forEach(function(el){
             var widgetClass = el.attr('widget-class');
             if( typeof window[widgetClass] === 'function' ){
                 var id = el.attr('id');
@@ -158,11 +158,11 @@ extend( Element, Document ).with({
                 this.addEventListener( event, function( originalEvent ) {
                     if( originalEvent.target.matches( b ) ){
                         // direct;
-                        originalEvent.stopImmediatePropagation();
+                        // originalEvent.stopImmediatePropagation();
                         return c.call( originalEvent.target, originalEvent );
                     } else if( closest = originalEvent.target.closest( b ) ) {
                         // via child
-                        originalEvent.stopImmediatePropagation();
+                        // originalEvent.stopImmediatePropagation();
                         return c.call( closest, originalEvent );
                     }
                 } )
@@ -175,13 +175,28 @@ extend( Element, Document ).with({
             bubbles: true
         } ) );
     },
-    findAll: function( query ){
+    find: function( query ){
         return this.querySelectorAll( query );
     },
     findOne: function( query ){
         return this.querySelector( query );
     },
+});
 
+extend( NodeList ).with({
+    listen: function( a, b, c ){
+        var split = a.split(' ');
+        for( var i in split ){
+            var event = split[i];
+            for(i=0;i<this.length;i++){
+                if( typeof c == 'undefined' ){
+                    this[i].listen( event, b );
+                } else {
+                    this[i].listen( event, b, c );
+                }
+            }
+        }
+    }
 });
 
 extend( Element ).with({
@@ -243,8 +258,6 @@ var Scope = new Scope();
 document.listen('DOMContentLoaded', function(e){
     document.dispatch('ready');
 });
-
-
 document.listen('touchstart mousedown', '*', function( event ){
     this.isMouseDown = true;
 
@@ -269,6 +282,21 @@ document.listen('touchmove mousemove', '*', function( event ){
 
         var diffX = Math.abs( startX - currentX );
         var diffY = Math.abs( startY - currentY );
+        console.log('swiping');
+        this['swiping'] = {
+            x: {
+                start: startX,
+                current: currentX,
+                diff: diffX
+            },
+            y: {
+                start: startY,
+                current: currentY,
+                diff: diffY
+            },
+        };
+
+        this.dispatch('swiping');
 
         if( diffX > 0 || diffY > 0 ){
             window.clearTimeout( this.longpressTimeout );
@@ -276,12 +304,12 @@ document.listen('touchmove mousemove', '*', function( event ){
 
         if( startX > currentX ){
             if( diffX > 15 ){
-                this.isMouseDown = false;
+                // this.isMouseDown = false;
                 this.dispatch('swiperight');
             }
         } else if( startX < currentX ){
             if( diffX > 15 ){
-                this.isMouseDown = false;
+                // this.isMouseDown = false;
                 this.dispatch('swipeleft');
             }
         }
