@@ -200,6 +200,13 @@ extend( NodeList ).with({
 });
 
 extend( Element ).with({
+    index: function(){
+        for(i=0;i<this.parentNode.children.length;i++){
+            if( this.parentNode.children[i] == this ){
+                return i;
+            }
+        }
+    },
     addClass: function( className ){
         this.classList.add( className );
     },
