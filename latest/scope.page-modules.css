@@ -1,0 +1,92 @@
+.page-modules{
+
+}
+.page-modules .toolbox{
+    width: 100%;
+    background-color: #f2f2f2;
+    border-color: #333;
+}
+.page-modules .toolbox ul{
+    display: inline-block;
+    float: left;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.page-modules .toolbox ul,
+.page-modules .toolbox ul *{
+    cursor: pointer;
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    user-select: none;          /* Likely future */
+}
+
+.page-modules .toolbox ul li[hide] ul{
+    display: none;
+}
+
+.page-modules .toolbox > ul > li:hover,
+.page-modules .toolbox > ul > li[show]{
+    -webkit-box-shadow: 5px 5px 5px -2px rgba(0,0,0,0.5);
+    -moz-box-shadow: 5px 5px 5px -2px rgba(0,0,0,0.5);
+    box-shadow: 5px 5px 5px -2px rgba(0,0,0,0.5);
+}
+.page-modules .toolbox ul li[show]{
+    background-color: white;
+    box-sizing: border-box;
+}
+
+.page-modules .toolbox ul li{
+    display: inline-block;
+    padding: 16px;
+    float: left;
+    position: relative;
+    box-sizing: border-box;
+    white-space: pre;
+}
+
+.page-modules .toolbox ul li li{
+    min-width: 100%;
+}
+
+.page-modules .toolbox ul li > ul{
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 100%;
+
+    background-color: white;
+    /* border: 1px solid #f2f2f2; */
+    box-sizing: border-box;
+
+    -webkit-box-shadow: 5px 5px 5px -2px rgba(0,0,0,0.5);
+    -moz-box-shadow: 5px 5px 5px -2px rgba(0,0,0,0.5);
+    box-shadow: 5px 5px 5px -2px rgba(0,0,0,0.5);
+}
+
+.page-modules .toolbox{
+    min-height: 20px;
+    display: inline-block;
+    width: 100%;
+    float: left;
+}
+
+.page-modules .content{
+    width: 100%;
+    display: inline-block;
+    min-height: 20px;
+    border: 1px solid #f2f2f2;
+    box-sizing: border-box;
+}
+
+.page-modules .content [sc-allow-children="1"]:empty{
+    min-height: 20px;
+    background-color: #555;
+}
+.page-modules .content [focus]{
+    -webkit-box-shadow: 5px 5px 5px -2px rgba(0,0,0,0.5);
+    -moz-box-shadow: 5px 5px 5px -2px rgba(0,0,0,0.5);
+    box-shadow: 5px 5px 5px -2px rgba(0,0,0,0.5);
+}

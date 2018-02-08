@@ -170,10 +170,12 @@ extend( Element, Document ).with({
         }
     },
     dispatch: function( eventType ){
-        this.dispatchEvent( new CustomEvent( eventType, {
+        var event = new CustomEvent( eventType, {
             cancelable: true,
             bubbles: true
-        } ) );
+        } );
+        this.dispatchEvent( event );
+        return event;
     },
     find: function( query ){
         return this.querySelectorAll( query );
@@ -289,7 +291,7 @@ document.listen('touchmove mousemove', '*', function( event ){
 
         var diffX = Math.abs( startX - currentX );
         var diffY = Math.abs( startY - currentY );
-        console.log('swiping');
+
         this['swiping'] = {
             x: {
                 start: startX,
@@ -303,21 +305,30 @@ document.listen('touchmove mousemove', '*', function( event ){
             },
         };
 
-        this.dispatch('swiping');
+        var swiping = this.dispatch('swiping');
 
         if( diffX > 0 || diffY > 0 ){
             window.clearTimeout( this.longpressTimeout );
         }
 
+        if( swiping.defaultPrevented ){
+            this.isMouseDown = false;
+            return;
+        }
+
         if( startX > currentX ){
             if( diffX > 15 ){
-                // this.isMouseDown = false;
-                this.dispatch('swiperight');
+                var swipright = this.dispatch('swiperight');
+                if( swipright.defaultPrevented ){
+                    this.isMouseDown = false
+                }
             }
         } else if( startX < currentX ){
             if( diffX > 15 ){
-                // this.isMouseDown = false;
-                this.dispatch('swipeleft');
+                var swipeleft = this.dispatch('swipeleft');
+                if( swipeleft.defaultPrevented ){
+                    this.isMouseDown = false
+                }
             }
         }
     }

@@ -17,6 +17,8 @@ window['scope.slide'] = function( element ){
     });
 
     this.ul.listen('swipeleft', function(e){
+        e.preventDefault();
+        e.stopImmediatePropagation();
         this.slidePrevious();
     }.bind(this))
 
@@ -25,6 +27,8 @@ window['scope.slide'] = function( element ){
     }.bind(this))
 
     this.ul.listen('swiperight', function(e){
+        e.preventDefault();
+        e.stopImmediatePropagation();
         this.slideNext();
     }.bind(this))
 
