@@ -156,15 +156,18 @@ extend( Element, Document ).with({
             } else {
                 // delegate
                 this.addEventListener( event, function( originalEvent ) {
-                    if( originalEvent.target.matches( b ) ){
-                        // direct;
-                        // originalEvent.stopImmediatePropagation();
-                        return c.call( originalEvent.target, originalEvent );
-                    } else if( closest = originalEvent.target.closest( b ) ) {
-                        // via child
-                        // originalEvent.stopImmediatePropagation();
-                        return c.call( closest, originalEvent );
+                    if( typeof originalEvent.target.matches == 'function' ){
+                        if( originalEvent.target.matches( b ) ){
+                            // direct;
+                            // originalEvent.stopImmediatePropagation();
+                            return c.call( originalEvent.target, originalEvent );
+                        } else if( closest = originalEvent.target.closest( b ) ) {
+                            // via child
+                            // originalEvent.stopImmediatePropagation();
+                            return c.call( closest, originalEvent );
+                        }
                     }
+
                 } )
             }
         }

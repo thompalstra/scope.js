@@ -79,6 +79,29 @@
     min-height: 20px;
     border: 1px solid #f2f2f2;
     box-sizing: border-box;
+    padding: 10px 0;
+    border: 1px solid #ddd;
+}
+
+.page-modules .content > *{
+    border: 1px solid #ddd;
+}
+
+.page-modules .content widget{
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+}
+.page-modules .content widget:before{
+    content: attr(sc-widget-class);
+    display: block;
+    padding: 10px;
+    font-size: 20px;
+    background-color: #ddd;
+    color: #333;
+    margin: -10px -10px 10px -10px;
 }
 
 .page-modules .content [sc-allow-children="1"]:empty{
