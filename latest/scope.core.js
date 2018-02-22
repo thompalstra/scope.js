@@ -104,7 +104,7 @@ extend( Scope ).with({
                     return this.obj.onsuccess.call( this, this );
                 }
             }
-            xhr.onerror = xhr.obj.onerror.call( this, xhr );
+            xhr.onerror = xhr.obj.onerror;
             xhr.send( xhr.obj.data );
         }
     },
@@ -143,13 +143,11 @@ extend( Scope ).with({
         });
     }
 });
-
-extend( Element, Document ).with({
+extend( Element, Document, Window ).with({
     listen: function( a, b, c ){
         var split = a.split(' ');
         for( var i in split ){
             var event = split[i];
-            console.log(event);
             if( typeof c === 'undefined' ){
                 // direct
                 this.addEventListener( event, b );
@@ -159,11 +157,9 @@ extend( Element, Document ).with({
                     if( typeof originalEvent.target.matches == 'function' ){
                         if( originalEvent.target.matches( b ) ){
                             // direct;
-                            // originalEvent.stopImmediatePropagation();
                             return c.call( originalEvent.target, originalEvent );
                         } else if( closest = originalEvent.target.closest( b ) ) {
                             // via child
-                            // originalEvent.stopImmediatePropagation();
                             return c.call( closest, originalEvent );
                         }
                     }
@@ -179,29 +175,15 @@ extend( Element, Document ).with({
         } );
         this.dispatchEvent( event );
         return event;
-    },
+    }
+});
+extend( Element, Document ).with({
     find: function( query ){
         return this.querySelectorAll( query );
     },
     findOne: function( query ){
         return this.querySelector( query );
     },
-});
-
-extend( NodeList ).with({
-    listen: function( a, b, c ){
-        var split = a.split(' ');
-        for( var i in split ){
-            var event = split[i];
-            for(i=0;i<this.length;i++){
-                if( typeof c == 'undefined' ){
-                    this[i].listen( event, b );
-                } else {
-                    this[i].listen( event, b, c );
-                }
-            }
-        }
-    }
 });
 
 extend( Element ).with({
@@ -242,7 +224,6 @@ extend( Element ).with({
     },
     attr: function( a, b ){
         if( b === null ){
-            console.log('rem');
             this.removeAttribute( a );
         } else if( typeof b === 'undefined' ){
             return this.getAttribute( a );
@@ -257,19 +238,41 @@ extend( Element ).with({
     }
 });
 
+extend( HTMLCollection, NodeList ).with({
+    listen: function( a, b, c ){
+        var split = a.split(' ');
+        for( var i in split ){
+            var event = split[i];
+            for(i=0;i<this.length;i++){
+                if( typeof c == 'undefined' ){
+                    this[i].listen( event, b );
+                } else {
+                    this[i].listen( event, b, c );
+                }
+            }
+        }
+    },
+    dispatch: function( a ){
+        for(i=0;i<this.length;i++){
+            this[i].dispatch( a );
+        }
+    }
+});
+
 extend( HTMLCollection ).with({
     forEach: function( callable ){
         for(i=0;i<this.length;i++){
             callable.call( this, this[i] );
         }
     }
-})
+});
 
 var Scope = new Scope();
 
 document.listen('DOMContentLoaded', function(e){
     document.dispatch('ready');
 });
+
 document.listen('touchstart mousedown', '*', function( event ){
     this.isMouseDown = true;
 

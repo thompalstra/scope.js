@@ -1,0 +1,40 @@
+.datatable{
+
+}
+
+.datatable table{
+    width: 100%;
+}
+
+.datatable table th{
+    text-align: left;
+}
+
+.datatable td.matches{
+    border: 1px solid yellow;
+}
+.datatable td.error{
+    border: 1px solid red;
+}
+.datatable td.error.fade{
+    animation-delay: 4s;
+    animation: errorFade 4s forwards;
+}
+.datatable ul.pagination{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.datatable ul.pagination li{
+    display: inline-block;
+    padding: 10px 15px;
+}
+.datatable ul.pagination li.active{
+    background-color: #ddd;
+    color: #f2f2f2;
+}
+
+@keyframes errorFade{
+    from{border: 1px solid red;}
+    to{border: 1px solid transparent;}
+}
