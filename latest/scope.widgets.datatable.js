@@ -305,32 +305,51 @@ extend( Scope.widgets ).with({
 
 
 
-// <div>
-//     <input id='wo01-search' type="search"/>
-// </div>
-// <div id='w01' class='datatable'></div>
+<div>
+    <input id='w01-search' type="search"/>
+</div>
+<div id='w01' class='datatable'></div>
+
+<script>
+
+//     // var ds = [
+//     //     {1: [1, 'brothom', 'user@username.com', 1, 0, 1]},
+//     //     {2: [2, 'nickinatorz', 'nickinatorz@username.com', 1, 0, 1]},
+//     //     {3: [3, 'wesley931', 'wesley931@username.com', 1, 0, 1]},
+//     //     {4: [4, 'kecin', 'kecin@gmail.com', 1, 0, 1]},
+//     //     {5: [5, 'dave', 'user@gmail.com', 1, 0, 1]},
+//     //     {6: [6, 'fred', 'user@gmail.com', 1, 0, 1]},
+//     //     {7: [7, 'han', 'user@gmail.com', 1, 0, 1]},
+//     //     {8: [8, 'maik', 'mikkelz@gmail.com', 1, 0, 1]},
+//     //     {9: [9, 'lolo', 'yoyo@yahoo.com', 1, 0, 1]},
+//     //     {10: [10, 'derrik', 'dr@yahoo.com', 1, 0, 1]},
+//     //     {11: [11, 'han sololol', 'griefmeister@yahoo.com', 1, 0, 1]}
+//     // ];
 //
-// <script>
+//     var ds = [];
+//     i = 1;
+//     while(i<=93){
+//         var obj = {};
 //
-//     var ds = [
-//         {1: [1, 'brothom', 'user@username.com', 1, 0, 1]},
-//         {2: [2, 'nickinatorz', 'nickinatorz@username.com', 1, 0, 1]},
-//         {3: [3, 'wesley931', 'wesley931@username.com', 1, 0, 1]},
-//         {4: [4, 'kecin', 'kecin@gmail.com', 1, 0, 1]},
-//         {5: [5, 'dave', 'user@gmail.com', 1, 0, 1]},
-//         {6: [6, 'fred', 'user@gmail.com', 1, 0, 1]},
-//         {7: [7, 'han', 'user@gmail.com', 1, 0, 1]},
-//         {8: [8, 'maik', 'mikkelz@gmail.com', 1, 0, 1]},
-//         {9: [9, 'lolo', 'yoyo@yahoo.com', 1, 0, 1]},
-//         {10: [10, 'derrik', 'dr@yahoo.com', 1, 0, 1]},
-//         {11: [11, 'han sololol', 'griefmeister@yahoo.com', 1, 0, 1]}
-//     ];
+//         var isActive = Math.floor(Math.random() * (1 - 0 + 1)) + 0;
+//         var mailValidated = Math.floor(Math.random() * (1 - 0 + 1)) + 0;
+//         var mailSubscribed = Math.floor(Math.random() * (1 - 0 + 1)) + 0;
+//
+//         var mails = ['gmail', 'yahoo', 'hotmail', 'outlook', 'live'];
+//         var mail = mails [ Math.floor(Math.random()*( ( mails.length -1 ) - ( 0 ) +1)+( 0 )) ];
+//
+//         obj[i] = [i, 'han sololol_' + i, 'griefmeister@' +mail+ '.com', isActive, mailValidated, mailSubscribed];
+//         ds.push(obj);
+//         i++;
+//     }
+//
+//
 //     var dc = {
 //         id: '#',
 //         username: 'user',
 //         email: 'mail',
 //         is_active: 'active',
-//         is_mail_validated: 'mail validated',
+//         is_mail_validated: 'validated',
 //         is_mail_subscribed: 'subscribed'
 //     };
 //     var sc = ['id', 'username', 'email'];
@@ -346,15 +365,21 @@ extend( Scope.widgets ).with({
 //             dataColumns: dc,
 //             searchColumns: sc,
 //             pagination: {
-//                 pageSize: 3,
+//                 pageSize: 20,
 //                 page: 0
 //             },
 //             query: ''
 //         } );
 //         dt.construct();
 //
-//         document.findOne('#wo01-search').listen('input', function(e){
-//             dt.search( this.value );
+//         document.findOne('#w01-search').listen('input', function(e){
+//             if( this.value.length > 0 ){
+//                 dt.search( {
+//                     1: this.value
+//                 } );
+//             } else {
+//                 dt.search();
+//             }
 //         })
 //
 //     })
