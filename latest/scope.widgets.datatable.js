@@ -56,6 +56,7 @@ window['datatable'] = function( arg ){
     this.element.listen('focusout', 'tr td input',function(e){
         var input = e.target.closest('input');
         var tr = e.target.closest('tr');
+        var td = e.target.closest('td');
         var newValue = input.value;
         var name = input.attr('name');
 
@@ -65,24 +66,38 @@ window['datatable'] = function( arg ){
             url: this.updateUrl,
             data: data,
             onsuccess: function(e){
-                var input = this.closest('input');
-                var td = this.closest('td');
+                var input = this.element.closest('input');
+                var td = this.element.closest('td');
+
+                var page = this.datatable.pagination.page;
+
+                var offset = page * this.datatable.pagination.pageSize;
+                var index = ( tr.index() + offset );
+
+                this.datatable.dataSource[index][tr.attr('data-id')][td.attr('data-id')] = newValue;
+
                 td.attr('data-value', newValue);
                 var span = td.appendChild( document.createElement('span') );
                 span.innerHTML = td.attr('data-value');
                 td.attr('title', null);
                 input.remove();
-            }.bind(e.target),
+            }.bind({
+                element: e.target,
+                datatable: this
+            }),
             onerror: function(e){
-                var input = this.closest('input');
-                var td = this.closest('td');
+                var input = this.element.closest('input');
+                var td = this.element.closest('td');
                 var span = td.appendChild( document.createElement('span') );
                 span.innerHTML = td.attr('data-value');
                 td.addClass('error');
                 td.addClass('fade');
                 td.attr('title', 'Could not update record');
                 input.remove();
-            }.bind(e.target)
+            }.bind({
+                element: e.target,
+                datatable: this
+            })
         });
     }.bind(this))
 }
@@ -97,17 +112,48 @@ extend( datatable ).with({
         var table = document.createElement('table');
         var thead = table.appendChild( document.createElement('thead') );
         var tbody = table.appendChild( document.createElement('tbody') );
+
         var tr = thead.appendChild( document.createElement('tr') );
         for(var i in this.dataColumns){
             var th = document.createElement('th');
             th.innerHTML = this.dataColumns[i];
             tr.appendChild( th );
         }
+
+        var tr = thead.appendChild( document.createElement('tr') );
+        var c = 0;
+        for(var i in this.dataColumns){
+            if( typeof this.searchColumns[c] !== 'undefined'){
+                var th = document.createElement('th');
+                var input = th.appendChild( document.createElement('input') );
+                input.attr('name', 'search['+c+']' );
+                input.attr('type', 'search');
+
+                input.listen('input',function(e){
+                    var inputs = this.datatable.element.find('input[type="search"]');
+                    var search = {};
+                    for(i=0;i<inputs.length;i++){
+                        if( inputs[i].value.length > 0 ){
+                            var index = inputs[i].name.replace('search[', '').replace(']','');
+                            search[index] = inputs[i].value;
+                        }
+                    }
+                    this.datatable.search( search );
+                }.bind({
+                    element: input,
+                    datatable: this
+                }));
+
+                tr.appendChild( th );
+            }
+            c++;
+        }
+
         this.element.appendChild( table );
     },
     createPagination: function( length ){
 
-        this.pages = length / this.pagination.pageSize + 1;
+        this.pages = parseInt( Math.round( length / this.pagination.pageSize ) );
 
         var ul = this.element.findOne('ul.pagination');
         if( !ul ){
@@ -117,43 +163,69 @@ extend( datatable ).with({
         ul.innerHTML = '';
 
         ul.className = 'pagination';
-        var i = 1;
-        while(i < this.pages){
+        var range = 3;
+
+        var start = this.pagination.page - (range-2);
+        if( start < 1 ){
+            start = 1;
+        }
+        var end = this.pagination.page + range;
+        if( end > this.pages ){
+            end = this.pages;
+        }
+
+        for(i=start;i<=end;i++){
             var li = ul.appendChild( document.createElement('li') );
-            li.innerHTML = i;
-            li.attr('page', i);
-            if( this.pagination !== false && this.pagination.page == (i-1) ){
+            li.innerHTML = i; li.attr('page', i);
+            if( (i-1) == this.pagination.page ){
                 li.className = 'active';
             }
+
             li.listen('click', function(e){
                 this.datatable.pagination.page = parseFloat( this.element.attr('page') - 1 );
 
                 var active = this.element.closest('ul').findOne('li.active');
                 active.className = '';
                 this.element.className = 'active';
-
-
+                this.datatable.data();
                 this.datatable.display();
             }.bind({
                 datatable: this,
                 element: li
             }))
-            i++;
         }
+
     },
     data: function(){
         this.dataSubset = [];
         var subsetCount = 0;
-        if( this.query){
-            for(var i in this.dataSource){
-                var item = this.dataSource[i];
-                var key = Object.keys(item)[0];
-                var dataItem = item[key];
 
-                for(var i in this.searchColumns){
-                    if( this.matches( this.query, dataItem[i] ) == true ){
-                        this.dataSubset.push( item );
-                        break;
+        var skip = true;
+        if( typeof this.query == 'object' ){
+            for(var i in this.query){
+                if( this.query[i].length == 0 ){
+                    delete this.query[i];
+
+                } else {
+                    skip = false;
+                }
+            }
+        }
+
+        if( skip == false ){
+            if( typeof this.query == 'object' ){
+                for(var ds in this.dataSource){
+                    var item = this.dataSource[ds];
+                    var key = Object.keys(item)[0];
+                    var dataItem = item[key];
+
+                    for(var i in this.query){
+                        if( this.query[i].length > 0 ){
+                            if( this.matches( this.query[i], dataItem[i] ) == true ){
+                                this.dataSubset.push( item );
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -195,16 +267,9 @@ extend( datatable ).with({
 
             for(var i in this.dataColumns){
                 var td = tr.appendChild( document.createElement('td') );
+                td.attr('data-id', columnCount);
                 td.attr('data-value', dataItem[columnCount]);
                 td.attr('data-name', i);
-
-                if( this.query.length > 0 ){
-                    if( this.searchColumns[columnCount] !== undefined ){
-                        if( this.matches( this.query, dataItem[columnCount] ) == true ){
-                            td.addClass('matches');
-                        }
-                    }
-                }
 
                 var span = td.appendChild( document.createElement('span') );
                 span.innerHTML = dataItem[columnCount];
@@ -212,25 +277,21 @@ extend( datatable ).with({
             }
             index++;
         }
+        var span = this.element.findOne('.summary');
+        if( span ){
+            span.remove();
+        }
+        span = this.element.appendChild( document.createElement('span') );
+        span.className = 'summary';
+        span.innerHTML = start + "-" + ( this.dataSubset.length)
     },
     matches: function( query, attribute ){
-        switch( typeof attribute ){
-            case 'number':
-                if( attribute == parseFloat( query ) ){
-                    console.log('match');
-                    return true;
-                }
-            break;
-            case 'string':
-                if( attribute.indexOf( query ) !== -1 ){
-                    return true;
-                }
-            break;
+        if( attribute.toString().indexOf( query ) !== -1 ){
+            return true;
         }
-
         return false;
     },
-    search: function( query ){
+    search: function( query, column ){
         this.query = query;
         this.pagination.page = 0;
         this.data();

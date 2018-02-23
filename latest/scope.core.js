@@ -1,3 +1,52 @@
+(function () {
+  if ( typeof window.CustomEvent === "function" ) return false; //If not IE
+
+  function CustomEvent ( event, params ) {
+    params = params || { bubbles: false, cancelable: false, detail: undefined };
+    var evt = document.createEvent( 'CustomEvent' );
+    evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+    return evt;
+   }
+
+  CustomEvent.prototype = window.Event.prototype;
+
+  window.CustomEvent = CustomEvent;
+})();
+(function () {
+    if( typeof Element.closest === 'function' ) return false;
+
+    Element.prototype.matches = function(selector) {
+        var node = this, nodes = (node.parentNode || node.document).querySelectorAll(selector), i = -1;
+        while (nodes[++i] && nodes[i] != node);
+        return !!nodes[i];
+    }
+})();
+(function () {
+
+    if( typeof Element.closest === 'remove' ) return false;
+
+    Element.prototype.remove = function() {
+        if (this.parentNode) {
+            this.parentNode.removeChild(this);
+        }
+    };
+})();
+(function () {
+    if( typeof Element.closest === 'function' ) return false;
+    Element.prototype.closest = function (query) {
+        if( this.matches( query ) ){
+            return this;
+        } if( !this.parentElement ){
+            return false;
+        } else if( this.parentElement.matches( query ) ){
+            return this.parentElement;
+        }
+        return this.parentElement.closest( query );
+    };
+})();
+
+
+
 window.extend = function(){
     return new Extender( arguments );
 }
@@ -6,13 +55,13 @@ Extender = function( collection ){
     this.collection = collection;
 }
 Extender.prototype.with = function( args ){
-    for(i=0;i<=this.collection.length;i++){
+    for(i=0;i<this.collection.length;i++){
         var item = this.collection[i];
-        if( typeof item == "function" ){
+        if( item.hasOwnProperty('prototype') ){
             for(var b in args){
                 item.prototype[b] = args[b];
             }
-        } else if( typeof item === "object" ){
+        } else {
             for(var b in args){
                 item[b] = args[b];
             }
@@ -39,19 +88,38 @@ window.serialize = function( obj, prefix ){
 }
 
 window.Scope = function(){
+
+    this.browser = this.getUserAgent();
+
     console.log( "Successfully initialize Scope.js" );
 }
-
-
 
 window.Scope.extend = function( arguments ){
     this.collection = arguments;
     return this;
 }
-window.Scope.extend.prototype.with =
-
 
 extend( Scope ).with({
+    getUserAgent: function(){
+        var data = {
+            name: 'netscape',
+            ua: window.navigator.userAgent
+        };
+
+        var ua = window.navigator.userAgent.toLowerCase();
+
+        if( ua.indexOf('.net') !== -1 ){
+            data.name = 'ie';
+        } else if( ua.indexOf('edge') !== -1 ){
+            data.name = 'edge';
+        } else if( ua.indexOf('chrome') !== -1 ){
+            data.name = 'chrome';
+        } else if( ua.indexOf('firefox') !== -1 ){
+            data.name = 'ff';
+        }
+
+        return data;
+    },
     request: {
         validate: function( obj ){
             if( !obj.hasOwnProperty('method') ){
@@ -82,6 +150,10 @@ extend( Scope ).with({
         send: function( obj ){
             var xhr = new XMLHttpRequest();
             xhr.obj = this.validate( obj );
+
+            xhr.open( xhr.obj.method, xhr.obj.url );
+
+
             xhr.responseType = obj.responseType;
 
             if( xhr.obj.method.toUpperCase() == 'POST' ){
@@ -92,8 +164,6 @@ extend( Scope ).with({
                     xhr.obj.data = '';
                 }
             }
-
-            xhr.open( xhr.obj.method, xhr.obj.url );
 
             for(var i in xhr.obj.headers ){
                 xhr.setRequestHeader(i, xhr.obj.headers[i] );
@@ -339,6 +409,7 @@ document.listen('touchmove mousemove', '*', function( event ){
         }
     }
 });
+
 document.listen('touchend mouseup', '*', function( event ){
     window.clearTimeout( this.longpressTimeout );
     this.isMouseDown = false;
